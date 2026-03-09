@@ -1,74 +1,69 @@
-import { Link, Route, Routes } from "react-router-dom";
-import HomePage from "./pages/HomePage";
-import LoginPage from "./pages/LoginPage";
-import RegisterPage from "./pages/RegisterPage";
-import MyBookingsPage from "./pages/MyBookingsPage";
-import AdminDashboardPage from "./pages/AdminDashboardPage";
-import { useAuth } from "./context/AuthContext";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import api from "../api/axios";
+import { useAuth } from "../context/AuthContext";
 
-function App() {
-  const { isAuthenticated, isAdmin, logout, userEmail } = useAuth();
+function LoginPage() {
+  const navigate = useNavigate();
+  const { login } = useAuth();
+
+  const [form, setForm] = useState({
+    email: "",
+    password: "",
+  });
+
+  const [error, setError] = useState("");
+
+  const onChange = (e) => {
+    setForm((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    try {
+      const response = await api.post("/auth/login", form);
+      login(response.data);
+      navigate("/");
+    } catch (err) {
+      setError(err.response?.data?.message || "Login failed.");
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <nav className="bg-white shadow">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <Link to="/" className="text-xl font-bold text-blue-600">
-            Booking App
-          </Link>
+    <div className="mx-auto max-w-md rounded bg-white p-6 shadow">
+      <h1 className="mb-6 text-2xl font-bold">Login</h1>
 
-          <div className="flex items-center gap-4">
-            <Link to="/" className="text-sm font-medium text-gray-700 hover:text-blue-600">
-              Rooms
-            </Link>
+      <form onSubmit={onSubmit} className="space-y-4">
+        <input
+          name="email"
+          type="email"
+          placeholder="Email"
+          value={form.email}
+          onChange={onChange}
+          className="w-full rounded border px-4 py-2"
+        />
+        <input
+          name="password"
+          type="password"
+          placeholder="Password"
+          value={form.password}
+          onChange={onChange}
+          className="w-full rounded border px-4 py-2"
+        />
 
-            {isAuthenticated && (
-              <Link to="/my-bookings" className="text-sm font-medium text-gray-700 hover:text-blue-600">
-                My Bookings
-              </Link>
-            )}
+        {error && <p className="text-sm text-red-600">{error}</p>}
 
-            {isAdmin && (
-              <Link to="/admin" className="text-sm font-medium text-gray-700 hover:text-blue-600">
-                Admin
-              </Link>
-            )}
-
-            {!isAuthenticated ? (
-              <>
-                <Link to="/login" className="text-sm font-medium text-gray-700 hover:text-blue-600">
-                  Login
-                </Link>
-                <Link to="/register" className="rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
-                  Register
-                </Link>
-              </>
-            ) : (
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-gray-600">{userEmail}</span>
-                <button
-                  onClick={logout}
-                  className="rounded bg-red-500 px-4 py-2 text-sm font-medium text-white hover:bg-red-600"
-                >
-                  Logout
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </nav>
-
-      <main className="mx-auto max-w-6xl px-6 py-8">
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/my-bookings" element={<MyBookingsPage />} />
-          <Route path="/admin" element={<AdminDashboardPage />} />
-        </Routes>
-      </main>
+        <button className="w-full rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
+          Login
+        </button>
+      </form>
     </div>
   );
 }
 
-export default App;
+export default LoginPage;
