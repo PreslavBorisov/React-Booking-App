@@ -84,7 +84,7 @@ function AdminDashboardPage() {
         amenities: "",
       });
 
-      loadStats();
+      await loadStats();
     } catch (err) {
       setError(err.response?.data?.message || "Failed to create room.");
     }
@@ -97,8 +97,8 @@ function AdminDashboardPage() {
     try {
       await api.patch(`/booking/${id}/confirm`);
       setMessage("Booking confirmed successfully.");
-      loadBookings();
-      loadStats();
+      await loadBookings();
+      await loadStats();
     } catch (err) {
       setError(err.response?.data?.message || "Failed to confirm booking.");
     }
@@ -111,8 +111,8 @@ function AdminDashboardPage() {
     try {
       await api.delete(`/booking/${id}`);
       setMessage("Booking cancelled successfully.");
-      loadBookings();
-      loadStats();
+      await loadBookings();
+      await loadStats();
     } catch (err) {
       setError(err.response?.data?.message || "Failed to cancel booking.");
     }

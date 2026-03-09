@@ -5,6 +5,7 @@ import RegisterPage from "./pages/RegisterPage";
 import MyBookingsPage from "./pages/MyBookingsPage";
 import AdminDashboardPage from "./pages/AdminDashboardPage";
 import RoomDetailsPage from "./pages/RoomDetailsPage";
+import ProtectedRoute from "./components/ProtectedRoute";
 import { useAuth } from "./context/AuthContext";
 
 function App() {
@@ -65,9 +66,25 @@ function App() {
           <Route path="/rooms/:id" element={<RoomDetailsPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
-          <Route path="/my-bookings" element={<MyBookingsPage />} />
-          <Route path="/admin" element={<AdminDashboardPage />} />
-        </Routes> 
+
+          <Route
+            path="/my-bookings"
+            element={
+              <ProtectedRoute>
+                <MyBookingsPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute adminOnly={true}>
+                <AdminDashboardPage />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
       </main>
     </div>
   );
